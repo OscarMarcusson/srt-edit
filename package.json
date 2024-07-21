@@ -1,0 +1,15 @@
+{
+  "name": "srt-edit",
+  "version": "0.1.0",
+  "description": "A simple tool for editing SRT subtitle files",
+  "main": "main.js",
+  "scripts": {
+    "start": "node main.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "srt"
+  ],
+  "author": "Oscar Marcusson",
+  "license": "GPL-2.0-only"
+}
