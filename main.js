@@ -1,5 +1,6 @@
 import fs from "fs";
 import { Color } from "./utility/color.js";
+import { Offset } from "./utility/offset.js";
 
 const args = process.argv.slice(2);
 if (args.length == 0) {
@@ -47,14 +48,29 @@ function printHelp() {
 }
 
 function shift() {
+    // Load file
     if (args.length == 1) exitWithError(
         "Expected an .srt file after the shift command, like the example in green:",
         `${args.join(" ")} ${Color.foreground.black}${Color.background.green}"some-subtitle-file.srt"${Color.reset} +5s`
     );
+    const file = args[1];
+    if (!fs.existsSync(file)) exitWithError(
+        "Could not find that file",
+        `Make sure that the file path is correct and try again`
+    );
+    const dataRows = fs.readFileSync(file, { encoding: "utf-8" }).split("\n");
+
+    // Get the offset data
     if (args.length == 2) exitWithError(
         "Expected a time offset after the shift command, like the example in green:",
         `${args.join(" ")} ${Color.foreground.black}${Color.background.green}+5s`
     );
+    const offset = Offset.parse(args[2]);
+    if (offset.error) {
+        exitWithError(offset.error, offset.description);
+    }
+
+    // Ensure that we do not have any trailing and unhandeled arguments
     if (args.length > 3) {
         const goodArds = args.slice(0, 3);
         const badArgs = args.slice(3);
@@ -63,5 +79,6 @@ function shift() {
             `${Color.foreground.green}${goodArds.join(" ")} ${Color.foreground.black}${Color.background.red}${badArgs.join(" ")}`
         );
     }
-    console.log(args);
+
+    console.log("TODO: Implement offset");
 }
