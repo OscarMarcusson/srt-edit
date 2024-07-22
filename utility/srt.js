@@ -31,6 +31,46 @@ export const SRT = {
 
         return output;
     },
+
+    modifyTime: (time, offsetInMilliSeconds) => {
+        time.ms += offsetInMilliSeconds;
+        if (time.ms >= 1000) {
+            time.s += Math.floor(time.ms / 1000);
+            time.ms = time.ms % 1000;
+
+            if (time.s >= 60) {
+                time.m += Math.floor(time.s / 60);
+                time.s = time.s % 60;
+
+                if (time.m >= 60) {
+                    time.h += Math.floor(time.m / 60);
+                    time.m = time.m % 60;
+                }
+            }
+        }
+        else if (time.ms < 0) {
+            time.s += Math.floor(time.ms / 1000);
+            time.ms = 1000 + (time.ms % 1000);
+
+            if (time.s < 0) {
+                time.m += Math.floor(time.s / 60);
+                time.s = 60 + (time.s % 60);
+
+                if (time.m < 0) {
+                    time.h += Math.floor(time.m / 60);
+                    time.m = 60 + (time.m % 60);
+
+                    if (time.h < 0) {
+                        time.h = 0;
+                        time.m = 0;
+                        time.s = 0;
+                        time.ms = 0;
+                    }
+                }
+            }
+        }
+        return time;
+    },
 };
 
 

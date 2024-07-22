@@ -89,6 +89,10 @@ function shift() {
         );
     }
 
-    console.log("TODO: Implement offset");
+    for(const subtitles of srt) {
+        subtitles.from = SRT.modifyTime(subtitles.from, offset);
+        subtitles.to = SRT.modifyTime(subtitles.to, offset);
+    }
 
+    console.log("TODO: Serialize");
 }
