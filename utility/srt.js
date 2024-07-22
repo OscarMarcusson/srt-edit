@@ -71,8 +71,30 @@ export const SRT = {
         }
         return time;
     },
+
+    serialize: (srt) => {
+        return srt
+            .map(subtitles => `${subtitles.index}\n${serializeTimeStamp(subtitles)}\n${subtitles.subtitles.join("\n")}`)
+            .join("\n\n");
+    },
 };
 
+function fixedNumber(number, size) {
+    let str = number.toString();
+    while (str.length < size) str = `0${str}`;
+    return str;
+}
+function serializeTime(time) {
+    const h = fixedNumber(time.h, 2);
+    const m = fixedNumber(time.m, 2);
+    const s = fixedNumber(time.s, 2);
+    const ms = fixedNumber(time.ms, 3);
+    return `${h}:${m}:${s},${ms}`;
+}
+
+function serializeTimeStamp(time) {
+    return `${serializeTime(time.from)} --> ${serializeTime(time.to)}`;
+}
 
 function parseTimeStamp(timeStamp, line) {
     if (!timeStamp) exitWithError(`File contained an empty timestamp at line ${line}`);
