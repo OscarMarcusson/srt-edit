@@ -1,13 +1,7 @@
 export const Offset = {
     parse: (raw) => {
-        if (raw[0] != "+" && raw[0] != "-") {
-            return {
-                error: "Missing + or - at the start of the offset",
-            };
-        }
-
         let timeString = "";
-        let i = 1;
+        let i = 0;
         for (; i < raw.length; i++) {
             if (raw[i] >= "0" && raw[i] <= "9") timeString += raw[i];
             else break;
@@ -49,11 +43,8 @@ export const Offset = {
                 };
         }
 
-        const isAddition = raw[0] == "+";
         return {
-            offset: isAddition
-                ? time
-                : -time,
+            offset: time,
         };
     },
 };
