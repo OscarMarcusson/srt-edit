@@ -1,6 +1,8 @@
 import fs from "fs";
 import { Color } from "./utility/color.js";
 import { Offset } from "./utility/offset.js";
+import { SRT } from "./utility/srt.js";
+import { exitWithError } from "./utility/exitWithError.js";
 
 const args = process.argv.slice(2);
 if (args.length == 0) {
@@ -34,14 +36,6 @@ switch (args[0]) {
 }
 
 
-function exitWithError(error, help) {
-    console.error(Color.foreground.red + error + Color.reset);
-    if (help) {
-        console.log(help + Color.reset);
-    }
-    process.exit(1);
-}
-
 function printHelp() {
     console.log("SRT Edit: " + process.env.npm_package_version);
     console.log("TODO: Usage examples");
@@ -58,7 +52,8 @@ function shift() {
         "Could not find that file",
         `Make sure that the file path is correct and try again`
     );
-    const dataRows = fs.readFileSync(file, { encoding: "utf-8" }).split("\n");
+    const rawData = fs.readFileSync(file, { encoding: "utf-8" });
+    const srt = SRT.parse(rawData);
 
     // Get offset type
     if (args.length == 2) exitWithError(
@@ -95,4 +90,5 @@ function shift() {
     }
 
     console.log("TODO: Implement offset");
+
 }
