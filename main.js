@@ -79,15 +79,22 @@ function shift() {
     }
     const offset = offsetParseResult.offset * timeMultiplier;
 
-    // Ensure that we do not have any trailing and unhandeled arguments
-    if (args.length > 4) {
-        const goodArds = args.slice(0, 4);
-        const badArgs = args.slice(4);
-        exitWithError(
-            `Unexpected argument, please remove the red highlighted section:`,
-            `${Color.foreground.green}${goodArds.join(" ")} ${Color.foreground.black}${Color.background.red}${badArgs.join(" ")}`
-        );
+    // Get output file path
+    let output = file;
+    if(args.length > 4) {
+        output = args[4];
+
+        // Ensure that we do not have any trailing and unhandeled arguments
+        if (args.length > 5) {
+            const goodArds = args.slice(0, 4);
+            const badArgs = args.slice(4);
+            exitWithError(
+                `Unexpected argument, please remove the red highlighted section:`,
+                `${Color.foreground.green}${goodArds.join(" ")} ${Color.foreground.black}${Color.background.red}${badArgs.join(" ")}`
+            );
+        }
     }
+
 
     // Offset time
     for(const subtitles of srt) {
@@ -97,5 +104,10 @@ function shift() {
 
     // Serialize results
     const serialized = SRT.serialize(srt);
-    console.log(serialized);
+    try {
+        fs.writeFileSync(output, serialized, { encoding: "utf-8"});
+    }
+    catch(e) {
+        exitWithError(e);
+    }
 }
