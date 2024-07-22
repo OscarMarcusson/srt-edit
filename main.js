@@ -1,4 +1,5 @@
 import fs from "fs";
+import path from "path";
 import { Color } from "./utility/color.js";
 import { Offset } from "./utility/offset.js";
 import { SRT } from "./utility/srt.js";
@@ -52,8 +53,6 @@ function shift() {
         "Could not find that file",
         `Make sure that the file path is correct and try again`
     );
-    const rawData = fs.readFileSync(file, { encoding: "utf-8" });
-    const srt = SRT.parse(rawData);
 
     // Get offset type
     if (args.length == 2) exitWithError(
@@ -79,35 +78,51 @@ function shift() {
     }
     const offset = offsetParseResult.offset * timeMultiplier;
 
-    // Get output file path
-    let output = file;
-    if(args.length > 4) {
-        output = args[4];
+    const isFile = fs.statSync(file).isFile();
+    if (isFile) {
+        // Get output file path
+        let output = file;
+        if (args.length > 4) {
+            output = args[4];
 
-        // Ensure that we do not have any trailing and unhandeled arguments
-        if (args.length > 5) {
-            const goodArds = args.slice(0, 4);
-            const badArgs = args.slice(4);
-            exitWithError(
-                `Unexpected argument, please remove the red highlighted section:`,
-                `${Color.foreground.green}${goodArds.join(" ")} ${Color.foreground.black}${Color.background.red}${badArgs.join(" ")}`
-            );
+            // Ensure that we do not have any trailing and unhandeled arguments
+            if (args.length > 5) {
+                const goodArds = args.slice(0, 4);
+                const badArgs = args.slice(4);
+                exitWithError(
+                    `Unexpected argument, please remove the red highlighted section:`,
+                    `${Color.foreground.green}${goodArds.join(" ")} ${Color.foreground.black}${Color.background.red}${badArgs.join(" ")}`
+                );
+            }
+        }
+        transform(file, output);
+    }
+    else {
+        let directory = path.resolve(file);
+        const files = fs.readdirSync(directory, { recursive: false }).map(f => `${directory}/${f}`);
+        for (const file of files) {
+            transform(file, file);
         }
     }
 
+    function transform(input, output) {
+        const rawData = fs.readFileSync(input, { encoding: "utf-8" });
+        const srt = SRT.parse(rawData);
 
-    // Offset time
-    for(const subtitles of srt) {
-        subtitles.from = SRT.modifyTime(subtitles.from, offset);
-        subtitles.to = SRT.modifyTime(subtitles.to, offset);
-    }
 
-    // Serialize results
-    const serialized = SRT.serialize(srt);
-    try {
-        fs.writeFileSync(output, serialized, { encoding: "utf-8"});
-    }
-    catch(e) {
-        exitWithError(e);
+        // Offset time
+        for (const subtitles of srt) {
+            subtitles.from = SRT.modifyTime(subtitles.from, offset);
+            subtitles.to = SRT.modifyTime(subtitles.to, offset);
+        }
+
+        // Serialize results
+        const serialized = SRT.serialize(srt);
+        try {
+            fs.writeFileSync(output, serialized, { encoding: "utf-8" });
+        }
+        catch (e) {
+            exitWithError(e);
+        }
     }
 }
